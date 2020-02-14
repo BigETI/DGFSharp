@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29503.13
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DGFSharp", "DGFSharp\DGFSharp.csproj", "{AD866F81-2D75-4D64-8816-FC9FAB61FDAE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DGFSharpTest", "DGFSharpTest\DGFSharpTest.csproj", "{CEA24C72-84BE-4139-921B-5487FAAF5D17}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{AD866F81-2D75-4D64-8816-FC9FAB61FDAE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AD866F81-2D75-4D64-8816-FC9FAB61FDAE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AD866F81-2D75-4D64-8816-FC9FAB61FDAE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AD866F81-2D75-4D64-8816-FC9FAB61FDAE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CEA24C72-84BE-4139-921B-5487FAAF5D17}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CEA24C72-84BE-4139-921B-5487FAAF5D17}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CEA24C72-84BE-4139-921B-5487FAAF5D17}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CEA24C72-84BE-4139-921B-5487FAAF5D17}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {CDEBB6B6-D1DD-41D6-AB6B-A5E45EC25F72}
+	EndGlobalSection
+EndGlobal
