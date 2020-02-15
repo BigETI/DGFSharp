@@ -34,24 +34,14 @@ namespace DGFSharp
         private static readonly int dgfFileGardenSeparator = 0x00028001;
 
         /// <summary>
-        /// Encrypted number one
+        /// Edit password
         /// </summary>
-        public static readonly string encryptedNumberOne = "FA";
-
-        /// <summary>
-        /// Encrypted edit password
-        /// </summary>
-        private string encryptedEditPassword = string.Empty;
+        private string editPassword = string.Empty;
 
         /// <summary>
         /// Encrypted play password
         /// </summary>
-        private string encryptedPlayPassword = string.Empty;
-
-        /// <summary>
-        /// Encrypted apply play password until garden number
-        /// </summary>
-        private string encryptedApplyPlayPasswordUntilGardenNumber = encryptedNumberOne;
+        private string playPassword = string.Empty;
 
         /// <summary>
         /// Author name
@@ -74,31 +64,27 @@ namespace DGFSharp
         private List<Garden> garden = new List<Garden>();
 
         /// <summary>
-        /// Encrypted edit password
+        /// Edit password
         /// </summary>
-        public string EncryptedEditPassword
+        public string EditPassword
         {
-            get => encryptedEditPassword;
-            set => encryptedEditPassword = ((value == null) ? string.Empty : value);
+            get => editPassword;
+            set => editPassword = ((value == null) ? string.Empty : value);
         }
 
         /// <summary>
-        /// Encrypted play password
+        /// Play password
         /// </summary>
-        public string EncryptedPlayPassword
+        public string PlayPassword
         {
-            get => encryptedPlayPassword;
-            set => encryptedPlayPassword = ((value == null) ? string.Empty : value);
+            get => playPassword;
+            set => playPassword = ((value == null) ? string.Empty : value);
         }
 
         /// <summary>
-        /// Encrypted apply play password until garden number
+        /// Apply play password until garden number
         /// </summary>
-        public string EncryptedApplyPlayPasswordUntilGardenNumber
-        {
-            get => encryptedApplyPlayPasswordUntilGardenNumber;
-            set => encryptedApplyPlayPasswordUntilGardenNumber = ((value == null) ? encryptedNumberOne : value);
-        }
+        public ushort ApplyPlayPasswordUntilGardenNumber { get; set; }
 
         /// <summary>
         /// Author name
@@ -143,18 +129,18 @@ namespace DGFSharp
         /// <summary>
         /// Constructor
         /// </summary>
-        /// <param name="encryptedEditPassword">Encrypted edit password</param>
-        /// <param name="encryptedPlayPassword">Encrypted play password</param>
-        /// <param name="encryptedApplyPlayPasswordUntilGardenNumber">Encrypted apply play until garden number</param>
+        /// <param name="editPassword">Edit password</param>
+        /// <param name="playPassword">Play password</param>
+        /// <param name="applyPlayPasswordUntilGardenNumber">Encrypted apply play until garden number</param>
         /// <param name="authorName">Author name</param>
         /// <param name="comments">Comments</param>
         /// <param name="gardenOneMIDIPath">Garden one MIDI path</param>
         /// <param name="garden">Garden</param>
-        protected DGF(string encryptedEditPassword, string encryptedPlayPassword, string encryptedApplyPlayPasswordUntilGardenNumber, string authorName, string comments, string gardenOneMIDIPath, IReadOnlyList<Garden> garden)
+        protected DGF(string editPassword, string playPassword, ushort applyPlayPasswordUntilGardenNumber, string authorName, string comments, string gardenOneMIDIPath, IReadOnlyList<Garden> garden)
         {
-            EncryptedEditPassword = encryptedEditPassword;
-            EncryptedPlayPassword = encryptedPlayPassword;
-            EncryptedApplyPlayPasswordUntilGardenNumber = encryptedApplyPlayPasswordUntilGardenNumber;
+            EditPassword = editPassword;
+            PlayPassword = playPassword;
+            ApplyPlayPasswordUntilGardenNumber = applyPlayPasswordUntilGardenNumber;
             AuthorName = authorName;
             Comments = comments;
             GardenOneMIDIPath = gardenOneMIDIPath;
@@ -187,6 +173,13 @@ namespace DGFSharp
         }
 
         /// <summary>
+        /// Read and decrypt DGF string
+        /// </summary>
+        /// <param name="binaryReader">Binary reader</param>
+        /// <returns></returns>
+        private static string ReadAndDecryptDGFString(BinaryReader binaryReader) => DGFCrypt.Decrypt(ReadDGFString(binaryReader));
+
+        /// <summary>
         /// Write DGF string
         /// </summary>
         /// <param name="binaryWriter">Binary writer</param>
@@ -200,6 +193,13 @@ namespace DGFSharp
                 binaryWriter.Write(Encoding.ASCII.GetBytes(input_string));
             }
         }
+
+        /// <summary>
+        /// Encrypt and write DGF string
+        /// </summary>
+        /// <param name="binaryWriter">Binary writer</param>
+        /// <param name="input">Input</param>
+        private static void EncryptAndWriteDGFString(BinaryWriter binaryWriter, string input) => WriteDGFString(binaryWriter, DGFCrypt.Encrypt(input));
 
         /// <summary>
         /// Open GDF stream
@@ -226,106 +226,110 @@ namespace DGFSharp
                                     {
                                         if (binary_reader.ReadByte() == 0x0)
                                         {
-                                            string encrypted_edit_password = ReadDGFString(binary_reader);
-                                            string encrypted_play_password = ReadDGFString(binary_reader);
-                                            string encrypted_apply_play_password_until_garden_number = ReadDGFString(binary_reader);
-                                            string author_name = ReadDGFString(binary_reader);
-                                            string comments = ReadDGFString(binary_reader);
-                                            string garden_one_midi_path = ReadDGFString(binary_reader);
-                                            ushort number_of_garden = binary_reader.ReadUInt16();
-                                            byte constant = binary_reader.ReadByte();
-                                            bool success = false;
-                                            if (constant == 0x0)
+                                            string edit_password = ReadAndDecryptDGFString(binary_reader);
+                                            string play_password = ReadAndDecryptDGFString(binary_reader);
+                                            string apply_play_password_until_garden_number_string = ReadAndDecryptDGFString(binary_reader);
+                                            ushort apply_play_password_until_garden_number;
+                                            if (ushort.TryParse(apply_play_password_until_garden_number_string, out apply_play_password_until_garden_number))
                                             {
-                                                success = true;
-                                            }
-                                            else if (constant == 0xFF)
-                                            {
-                                                if (binary_reader.ReadInt32() == 0x090001FF)
+                                                string author_name = ReadDGFString(binary_reader);
+                                                string comments = ReadDGFString(binary_reader);
+                                                string garden_one_midi_path = ReadDGFString(binary_reader);
+                                                ushort number_of_garden = binary_reader.ReadUInt16();
+                                                byte constant = binary_reader.ReadByte();
+                                                bool success = false;
+                                                if (constant == 0x0)
                                                 {
-                                                    success = (binary_reader.ReadByte() == 0x00);
+                                                    success = true;
                                                 }
-                                            }
-                                            if (success)
-                                            {
-                                                if (Encoding.ASCII.GetString(binary_reader.ReadBytes(9)) == "CDaisygPg")
+                                                else if (constant == 0xFF)
                                                 {
-                                                    ushort program_version = binary_reader.ReadUInt16();
-                                                    if ((program_version == 0x1) || (program_version == 0x2))
+                                                    if (binary_reader.ReadInt32() == 0x090001FF)
                                                     {
-                                                        List<Garden> garden = new List<Garden>();
-                                                        for (ushort garden_index = 0; garden_index != number_of_garden; garden_index++)
+                                                        success = (binary_reader.ReadByte() == 0x00);
+                                                    }
+                                                }
+                                                if (success)
+                                                {
+                                                    if (Encoding.ASCII.GetString(binary_reader.ReadBytes(9)) == "CDaisygPg")
+                                                    {
+                                                        ushort program_version = binary_reader.ReadUInt16();
+                                                        if ((program_version == 0x1) || (program_version == 0x2))
                                                         {
-                                                            success = false;
-                                                            if (garden_index > 0)
+                                                            List<Garden> garden = new List<Garden>();
+                                                            for (ushort garden_index = 0; garden_index != number_of_garden; garden_index++)
                                                             {
-                                                                success = (binary_reader.ReadInt32() == 0x00028001);
-                                                            }
-                                                            else
-                                                            {
-                                                                success = true;
-                                                            }
-                                                            if (success)
-                                                            {
-                                                                string garden_name = ReadDGFString(binary_reader);
-                                                                string garden_midi_path = ReadDGFString(binary_reader);
-                                                                ushort garden_width = binary_reader.ReadUInt16();
-                                                                ushort garden_height = binary_reader.ReadUInt16();
-                                                                ushort garden_time = binary_reader.ReadUInt16();
-                                                                uint garden_tile_count = binary_reader.ReadUInt32();
-                                                                if (garden_tile_count == (garden_width * garden_height))
+                                                                success = false;
+                                                                if (garden_index > 0)
                                                                 {
-                                                                    ETile[,] tile_grid = new ETile[garden_width, garden_height];
-                                                                    for (uint cell_index = 0U; cell_index != garden_tile_count; cell_index++)
+                                                                    success = (binary_reader.ReadInt32() == 0x00028001);
+                                                                }
+                                                                else
+                                                                {
+                                                                    success = true;
+                                                                }
+                                                                if (success)
+                                                                {
+                                                                    string garden_name = ReadDGFString(binary_reader);
+                                                                    string garden_midi_path = ReadDGFString(binary_reader);
+                                                                    ushort garden_width = binary_reader.ReadUInt16();
+                                                                    ushort garden_height = binary_reader.ReadUInt16();
+                                                                    ushort garden_time = binary_reader.ReadUInt16();
+                                                                    uint garden_tile_count = binary_reader.ReadUInt32();
+                                                                    if (garden_tile_count == (garden_width * garden_height))
                                                                     {
-                                                                        byte tile_id = binary_reader.ReadByte();
-                                                                        ushort tile_variant = binary_reader.ReadUInt16();
-                                                                        ETile computed_tile = (ETile)(tile_id | (tile_variant << 8));
-                                                                        if (tileEnumItems.Contains(computed_tile))
+                                                                        ETile[,] tile_grid = new ETile[garden_width, garden_height];
+                                                                        for (uint cell_index = 0U; cell_index != garden_tile_count; cell_index++)
                                                                         {
-                                                                            tile_grid[cell_index % garden_width, cell_index / garden_width] = computed_tile;
-                                                                        }
-                                                                    }
-                                                                    uint number_of_entities = binary_reader.ReadUInt32();
-                                                                    List<Entity> entities = new List<Entity>();
-                                                                    for (uint entity_index = 0; entity_index < number_of_entities; entity_index++)
-                                                                    {
-                                                                        byte entity_id = binary_reader.ReadByte();
-                                                                        ushort entity_variant = binary_reader.ReadUInt16();
-                                                                        EEntity computed_entity = (EEntity)(entity_id | (entity_variant << 8));
-                                                                        if (entityEnumItems.Contains(computed_entity))
-                                                                        {
-                                                                            Position position = Position.Zero;
-                                                                            position.X = binary_reader.ReadUInt16();
-                                                                            position.Y = binary_reader.ReadUInt16();
-                                                                            Bounds bounds = Bounds.Infinite;
-                                                                            string hint = string.Empty;
-                                                                            switch (computed_entity)
+                                                                            byte tile_id = binary_reader.ReadByte();
+                                                                            ushort tile_variant = binary_reader.ReadUInt16();
+                                                                            ETile computed_tile = (ETile)(tile_id | (tile_variant << 8));
+                                                                            if (tileEnumItems.Contains(computed_tile))
                                                                             {
-                                                                                case EEntity.Marmot:
-                                                                                case EEntity.RightMovingWorm:
-                                                                                case EEntity.LeftMovingWorm:
-                                                                                case EEntity.UpMovingLift:
-                                                                                case EEntity.DownMovingLift:
-                                                                                case EEntity.LeftMovingLift:
-                                                                                case EEntity.RightMovingLift:
-                                                                                    bounds.Left = binary_reader.ReadInt16();
-                                                                                    bounds.Top = binary_reader.ReadInt16();
-                                                                                    bounds.Right = binary_reader.ReadInt16();
-                                                                                    bounds.Bottom = binary_reader.ReadInt16();
-                                                                                    break;
-                                                                                case EEntity.QuestionMark:
-                                                                                    hint = ReadDGFString(binary_reader);
-                                                                                    break;
+                                                                                tile_grid[cell_index % garden_width, cell_index / garden_width] = computed_tile;
                                                                             }
-                                                                            entities.Add(new Entity(computed_entity, position, bounds, hint));
                                                                         }
+                                                                        uint number_of_entities = binary_reader.ReadUInt32();
+                                                                        List<Entity> entities = new List<Entity>();
+                                                                        for (uint entity_index = 0; entity_index < number_of_entities; entity_index++)
+                                                                        {
+                                                                            byte entity_id = binary_reader.ReadByte();
+                                                                            ushort entity_variant = binary_reader.ReadUInt16();
+                                                                            EEntity computed_entity = (EEntity)(entity_id | (entity_variant << 8));
+                                                                            if (entityEnumItems.Contains(computed_entity))
+                                                                            {
+                                                                                Position position = Position.Zero;
+                                                                                position.X = binary_reader.ReadUInt16();
+                                                                                position.Y = binary_reader.ReadUInt16();
+                                                                                Bounds bounds = Bounds.Infinite;
+                                                                                string hint = string.Empty;
+                                                                                switch (computed_entity)
+                                                                                {
+                                                                                    case EEntity.Marmot:
+                                                                                    case EEntity.RightMovingWorm:
+                                                                                    case EEntity.LeftMovingWorm:
+                                                                                    case EEntity.UpMovingLift:
+                                                                                    case EEntity.DownMovingLift:
+                                                                                    case EEntity.LeftMovingLift:
+                                                                                    case EEntity.RightMovingLift:
+                                                                                        bounds.Left = binary_reader.ReadInt16();
+                                                                                        bounds.Top = binary_reader.ReadInt16();
+                                                                                        bounds.Right = binary_reader.ReadInt16();
+                                                                                        bounds.Bottom = binary_reader.ReadInt16();
+                                                                                        break;
+                                                                                    case EEntity.QuestionMark:
+                                                                                        hint = ReadDGFString(binary_reader);
+                                                                                        break;
+                                                                                }
+                                                                                entities.Add(new Entity(computed_entity, position, bounds, hint));
+                                                                            }
+                                                                        }
+                                                                        garden.Add(new Garden(garden_name, garden_midi_path, garden_time, tile_grid, entities));
                                                                     }
-                                                                    garden.Add(new Garden(garden_name, garden_midi_path, garden_time, tile_grid, entities));
                                                                 }
                                                             }
+                                                            ret = new DGF(edit_password, play_password, apply_play_password_until_garden_number, author_name, comments, garden_one_midi_path, garden);
                                                         }
-                                                        ret = new DGF(encrypted_edit_password, encrypted_play_password, encrypted_apply_play_password_until_garden_number, author_name, comments, garden_one_midi_path, garden);
                                                     }
                                                 }
                                             }
@@ -400,9 +404,9 @@ namespace DGFSharp
                             binary_writer.Write(dgfFileHeader);
                             WriteDGFString(binary_writer, "FB: Daisy's Garden 2");
                             binary_writer.Write(new byte[] { 0x07, 0x00, 0x00 });
-                            WriteDGFString(binary_writer, encryptedEditPassword);
-                            WriteDGFString(binary_writer, encryptedPlayPassword);
-                            WriteDGFString(binary_writer, encryptedApplyPlayPasswordUntilGardenNumber);
+                            EncryptAndWriteDGFString(binary_writer, editPassword);
+                            EncryptAndWriteDGFString(binary_writer, playPassword);
+                            EncryptAndWriteDGFString(binary_writer, ApplyPlayPasswordUntilGardenNumber.ToString());
                             WriteDGFString(binary_writer, authorName);
                             WriteDGFString(binary_writer, comments);
                             WriteDGFString(binary_writer, gardenOneMIDIPath);
