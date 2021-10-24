@@ -1,12 +1,12 @@
 ﻿/// <summary>
-/// DGF# namespace
+/// DGF♯ namespace
 /// </summary>
 namespace DGFSharp
 {
     /// <summary>
-    /// Entity enumerator
+    /// Entity type enumerator
     /// </summary>
-    public enum EEntity
+    public enum EEntityType
     {
         /// <summary>
         /// Daisy

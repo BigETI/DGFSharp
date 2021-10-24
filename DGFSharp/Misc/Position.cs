@@ -1,27 +1,27 @@
 ﻿/// <summary>
-/// DGF# namespace
+/// DGF♯ namespace
 /// </summary>
 namespace DGFSharp
 {
     /// <summary>
-    /// Position structure
+    /// A structure that describes a position
     /// </summary>
-    public struct Position
+    public readonly struct Position : IPosition
     {
         /// <summary>
         /// Zero position
         /// </summary>
-        public static Position Zero => new Position(0, 0);
+        public static Position Zero { get; } = new Position(0, 0);
 
         /// <summary>
         /// Position X
         /// </summary>
-        public ushort X { get; internal set; }
+        public ushort X { get; }
 
         /// <summary>
         /// Position Y
         /// </summary>
-        public ushort Y { get; internal set; }
+        public ushort Y { get; }
 
         /// <summary>
         /// Constructor

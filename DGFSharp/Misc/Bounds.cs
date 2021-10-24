@@ -1,40 +1,40 @@
 ﻿/// <summary>
-/// DGF# namespace
+/// DGF♯ namespace
 /// </summary>
 namespace DGFSharp
 {
     /// <summary>
-    /// Bounds structure
+    /// A structure that describes bounds
     /// </summary>
-    public struct Bounds
+    public readonly struct Bounds : IBounds
     {
         /// <summary>
         /// Infinite
         /// </summary>
-        public static Bounds Infinite => new Bounds(-1, -1, -1, -1);
+        public static IBounds Infinite { get; } = new Bounds(-1, -1, -1, -1);
 
         /// <summary>
         /// Top
         /// </summary>
-        public short Top { get; set; }
+        public short Top { get; }
 
         /// <summary>
         /// Bottom
         /// </summary>
-        public short Bottom { get; set; }
+        public short Bottom { get; }
 
         /// <summary>
         /// Left
         /// </summary>
-        public short Left { get; set; }
+        public short Left { get; }
 
         /// <summary>
         /// Right
         /// </summary>
-        public short Right { get; set; }
+        public short Right { get; }
 
         /// <summary>
-        /// Constructor
+        /// Constructs new bounds
         /// </summary>
         /// <param name="top">Top</param>
         /// <param name="bottom">Bottom</param>

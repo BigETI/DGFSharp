@@ -1,32 +1,32 @@
 ﻿/// <summary>
-/// DGF# namespace
+/// DGF♯ namespace
 /// </summary>
 namespace DGFSharp
 {
     /// <summary>
-    /// Size structure
+    /// A structure that describes a size
     /// </summary>
-    public struct Size
+    public readonly struct Size : ISize
     {
         /// <summary>
         /// Zero size
         /// </summary>
-        public static Position Zero => new Position(0, 0);
+        public static Size Zero { get; } = new Size(0, 0);
 
         /// <summary>
         /// One size
         /// </summary>
-        public static Position One => new Position(1, 1);
+        public static Size One { get; } = new Size(1, 1);
 
         /// <summary>
         /// Width
         /// </summary>
-        public ushort Width { get; internal set; }
+        public ushort Width { get; }
 
         /// <summary>
         /// Height
         /// </summary>
-        public ushort Height { get; internal set; }
+        public ushort Height { get; }
 
         /// <summary>
         /// Constructor

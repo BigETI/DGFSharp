@@ -3,63 +3,62 @@ using System.Text;
 using System.Threading.Tasks;
 
 /// <summary>
-/// DGF# namespace
+/// DGF♯ namespace
 /// </summary>
 namespace DGFSharp
 {
     /// <summary>
-    /// DGF cryptography class
+    /// A class that provides functionalities to encrypt or decrypt DGF strings
     /// </summary>
     public static class DGFCrypt
     {
         /// <summary>
-        /// Encrypt input
+        /// Encrypts the specified string
         /// </summary>
-        /// <param name="input">Input</param>
-        /// <returns>DGF encrypted input</returns>
+        /// <param name="input">Input string</param>
+        /// <returns>DGF encrypted string</returns>
         public static string Encrypt(string input)
         {
-            string ret = string.Empty;
-            if (input != null)
+            if (input == null)
             {
-                byte[] data = Encoding.ASCII.GetBytes(input);
-                byte seed = 0xCB;
-                for (int index = 0; index < data.Length; index++)
-                {
-                    ref byte data_byte = ref data[index];
-                    seed = (byte)(data_byte ^ seed);
-                    data_byte = seed;
-                }
-                char[] output = new char[data.Length * 2];
-                Parallel.For(0, data.Length, (index) =>
-                {
-                    byte data_byte = data[index];
-                    byte high = (byte)(data_byte >> 4);
-                    byte low = (byte)(data_byte & 0xF);
-                    if ((high >= 0x0) && (high <= 0x9))
-                    {
-                        output[index * 2] = (char)(0x30 + high);
-                    }
-                    else
-                    {
-                        output[index * 2] = (char)(0x37 + high);
-                    }
-                    if ((low >= 0x0) && (low <= 0x9))
-                    {
-                        output[(index * 2) + 1] = (char)(0x30 + low);
-                    }
-                    else
-                    {
-                        output[(index * 2) + 1] = (char)(0x37 + low);
-                    }
-                });
-                ret = new string(output);
+                throw new ArgumentNullException(nameof(input));
             }
-            return ret;
+            byte[] data = Encoding.ASCII.GetBytes(input);
+            byte seed = 0xCB;
+            for (int index = 0; index < data.Length; index++)
+            {
+                ref byte data_byte = ref data[index];
+                seed = (byte)(data_byte ^ seed);
+                data_byte = seed;
+            }
+            char[] output = new char[data.Length * 2];
+            Parallel.For(0, data.Length, (index) =>
+            {
+                byte data_byte = data[index];
+                byte high = (byte)(data_byte >> 4);
+                byte low = (byte)(data_byte & 0xF);
+                if ((high >= 0x0) && (high <= 0x9))
+                {
+                    output[index * 2] = (char)(0x30 + high);
+                }
+                else
+                {
+                    output[index * 2] = (char)(0x37 + high);
+                }
+                if ((low >= 0x0) && (low <= 0x9))
+                {
+                    output[(index * 2) + 1] = (char)(0x30 + low);
+                }
+                else
+                {
+                    output[(index * 2) + 1] = (char)(0x37 + low);
+                }
+            });
+            return new string(output);
         }
 
         /// <summary>
-        /// Decrypt DGF encrypted string
+        /// Decrypts DGF encrypted string
         /// </summary>
         /// <param name="input">DGF encrypted string</param>
         /// <returns>Decrypted DGF encrypted string</returns>

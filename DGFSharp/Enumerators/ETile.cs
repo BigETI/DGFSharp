@@ -1,5 +1,5 @@
 ﻿/// <summary>
-/// DGF# namespace
+/// DGF♯ namespace
 /// </summary>
 namespace DGFSharp
 {

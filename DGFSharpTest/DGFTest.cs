@@ -1,45 +1,45 @@
-using DGFSharp;
+﻿using DGFSharp;
 using NUnit.Framework;
 
 /// <summary>
-/// DGF# test namespace
+/// DGF♯ test namespace
 /// </summary>
 namespace DGFSharpTest
 {
     /// <summary>
-    /// Tests class
+    /// A class that describes tests
     /// </summary>
     public class Tests
     {
         /// <summary>
-        /// Get Daisy's position
+        /// Gets Daisy's position
         /// </summary>
         /// <param name="garden">Garden</param>
         /// <returns>Daisy's position if successful, otherwise position zero</returns>
-        private static Position GetDaisysPosition(Garden garden)
+        private static IPosition GetDaisysPosition(IGarden garden)
         {
-            Position ret = Position.Zero;
-            if (garden != null)
+            IPosition ret = null;
+            Assert.IsNotNull(garden);
+            foreach (IEntity entity in garden.Entities)
             {
-                foreach (Entity entity in garden.Entities)
+                Assert.IsNotNull(entity);
+                if (entity.Type == EEntityType.Daisy)
                 {
-                    if (entity.Type == EEntity.Daisy)
-                    {
-                        ret = entity.Position;
-                        break;
-                    }
+                    ret = entity.Position;
+                    break;
                 }
             }
+            Assert.IsNotNull(ret);
             return ret;
         }
 
         /// <summary>
-        /// Test read "./test.dgf"
+        /// Tests reading "./test.dgf"
         /// </summary>
         [Test]
         public void TestReadTestDGF()
         {
-            DGF test_dgf = DGF.Open("./test.dgf");
+            IDGF test_dgf = DGFIO.OpenDGF("./test.dgf");
             Assert.IsNotNull(test_dgf);
             Assert.AreEqual("Ethem Kurt", test_dgf.AuthorName);
             Assert.AreEqual("https://github.com/BigETI/DGFSharp", test_dgf.Comments);
@@ -47,7 +47,7 @@ namespace DGFSharpTest
             Assert.AreEqual("Edit", test_dgf.EditPassword);
             Assert.AreEqual("Play", test_dgf.PlayPassword);
             Assert.AreEqual(3, test_dgf.Garden.Count);
-            foreach (Garden garden in test_dgf.Garden)
+            foreach (IGarden garden in test_dgf.Garden)
             {
                 Assert.IsNotNull(garden);
             }
@@ -70,19 +70,19 @@ namespace DGFSharpTest
         }
 
         /// <summary>
-        /// Test output DGF file
+        /// Tests outputting DGF file
         /// </summary>
         [Test]
         public void TestOutputDGFFile()
         {
-            DGF test_dgf = DGF.Open("./test.dgf");
+            IDGF test_dgf = DGFIO.OpenDGF("./test.dgf");
             Assert.IsNotNull(test_dgf);
             Assert.IsTrue(test_dgf.Save("./output.dgf"));
             FileAssert.AreEqual("./output.dgf", "./test.dgf");
         }
 
         /// <summary>
-        /// Test DGF encryption
+        /// Tests DGF encryption
         /// </summary>
         [Test]
         public void TestDGFEncryption()
@@ -92,7 +92,7 @@ namespace DGFSharpTest
         }
 
         /// <summary>
-        /// Test DGF decryption
+        /// Tests DGF decryption
         /// </summary>
         [Test]
         public void TestDGFDecryption()

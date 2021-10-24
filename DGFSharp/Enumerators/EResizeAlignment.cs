@@ -1,6 +1,6 @@
 ﻿using System;
 /// <summary>
-/// DGF# namespace
+/// DGF♯ namespace
 /// </summary>
 namespace DGFSharp
 {
@@ -19,7 +19,7 @@ namespace DGFSharp
         /// Bottom flag
         /// </summary>
         Bottom = 0x1,
-        
+
         /// <summary>
         /// Left flag
         /// </summary>
