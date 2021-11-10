@@ -72,7 +72,11 @@ namespace DGFSharp
                 throw new ArgumentNullException(nameof(binaryReader));
             }
             string ret = string.Empty;
-            byte length = binaryReader.ReadByte();
+            ushort length = binaryReader.ReadByte();
+            if (length == 0xFF)
+            {
+                length = binaryReader.ReadUInt16();
+            }
             if (length > 0)
             {
                 ret = Encoding.ASCII.GetString(binaryReader.ReadBytes(length));
@@ -102,7 +106,15 @@ namespace DGFSharp
             {
                 throw new ArgumentNullException(nameof(input));
             }
-            binaryWriter.Write((byte)input.Length);
+            if (input.Length < 0xFF)
+            {
+                binaryWriter.Write((byte)input.Length);
+            }
+            else
+            {
+                binaryWriter.Write((byte)0xFF);
+                binaryWriter.Write((ushort)input.Length);
+            }
             if (input.Length > 0)
             {
                 binaryWriter.Write(Encoding.ASCII.GetBytes(input));
